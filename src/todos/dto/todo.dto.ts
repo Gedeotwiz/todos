@@ -1,9 +1,13 @@
 
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { ApiSchema } from '@nestjs/swagger';
 
-export class CreateTaskInputDto {
-  @IsNotEmpty({ message: 'Please write your task title' })
+export  namespace CreateTaskDto {
+
+  @ApiSchema({ name: 'CreateTaskInput' })
+  export class Input {
+     @IsNotEmpty({ message: 'Please write your task title' })
   @IsString()
   @ApiProperty()
   title: string;
@@ -19,13 +23,17 @@ export class CreateTaskInputDto {
   })
   @ApiProperty({ example: '10/03/2024', description: 'The time you are supposed to complete the task, in MM/DD/YYYY format' })
   time: string;
+  }
 
-}
 
-export class CreateTaskOutputDto {
-  
+  @ApiSchema({ name: 'CreateTaskOutput' })
+  export class Output {
   title: string;
   description: string;
   time: string;
   status: string;
+ }
+
 }
+
+
