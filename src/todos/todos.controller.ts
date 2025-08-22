@@ -1,7 +1,7 @@
-
 import { Body, Controller, Post } from '@nestjs/common';
 import { TodosService } from './todos.service';
-import { CreateTaskInputDto,CreateTaskOutputDto } from './dto/todo.dto';
+import { CreateTaskInputDto, CreateTaskOutputDto } from './dto/todo.dto';
+import { GenericResponse } from 'src/--share--/dto/genericResponse.dto';
 
 @Controller('todos')
 export class TodosController {
@@ -10,7 +10,8 @@ export class TodosController {
   @Post()
   async createTodo(
     @Body() body: CreateTaskInputDto,
-  ): Promise<CreateTaskOutputDto> {
-    return this.todosService.createTodos(body);
+  ): Promise<GenericResponse<CreateTaskOutputDto>> {
+    const payload = await this.todosService.createTodos(body);
+    return new GenericResponse("Task successfully added", payload);
   }
 }
