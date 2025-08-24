@@ -2,7 +2,7 @@ import { JwtGuard } from "../guards/jwt-guard";
 import { UserRole } from "src/--share--/dto/enum/user-role-enum";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { UseGuards,Type } from "@nestjs/common";
-import { RolesGuard } from "../guards/role-guard";
+import { Authguard } from "../guards/auth.guard";
 import { applyDecorators} from "@nestjs/common";
 import { AllowRoles } from "./roles.decorator";
 import { CanActivate } from "@nestjs/common/interfaces";
@@ -14,7 +14,7 @@ import { CanActivate } from "@nestjs/common/interfaces";
 function Authorize(guard: Type<CanActivate>, ...roles: UserRole[]) {
   return applyDecorators(
     ApiBearerAuth(),
-    UseGuards(guard, RolesGuard),
+    UseGuards(guard, Authguard ),
     AllowRoles(...roles),
   );
 }

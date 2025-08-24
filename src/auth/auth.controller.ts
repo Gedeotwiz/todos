@@ -9,7 +9,7 @@ import { LoginDto } from './dto/login.dto';
 export class AuthController{
     constructor(private readonly authService:AuthService){}
 
-   @Post("sign up")
+   @Post("signup")
    async createUser(@Body() body: SignupDto.Input,): Promise<GenericResponse<SignupDto.Output>> {
    const payload = await this.authService.signUp(body);
     return new GenericResponse("User successfully created", payload);

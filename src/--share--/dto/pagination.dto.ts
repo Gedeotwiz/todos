@@ -3,11 +3,11 @@ import { Pagination } from "nestjs-typeorm-paginate";
 import { ApiProperty } from "@nestjs/swagger";
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsOptional, IsInt, Min } from 'class-validator';
+import { IsNotEmpty, IsInt, Min } from 'class-validator';
 
 
 export class PaginationDto {
-  @IsOptional()
+  @IsNotEmpty()
    @ApiPropertyOptional({ description: 'Page number', example: 1 })
   @Type(() => Number)
   @IsInt()
@@ -16,7 +16,7 @@ export class PaginationDto {
 
 
    @ApiPropertyOptional({ description: 'User per page', example: 10 })
-  @IsOptional()
+  @IsNotEmpty()
   @Type(() => Number)
   @IsInt()
   @Min(1)
