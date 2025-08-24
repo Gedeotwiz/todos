@@ -13,6 +13,7 @@ import { getUserRole } from "src/--share--/dto/enum/user-role-enum";
 import { LoginDto } from "./dto/login.dto";
 import { UserRole } from "src/--share--/dto/enum/user-role-enum";
 import { TokenService } from "./utils/jwt-token-service";
+import * as jwt from 'jsonwebtoken';
 
 
 export interface IJwtPayload {
@@ -51,7 +52,7 @@ export class AuthService{
         names: body.names,
         phone: body.phone,
         password: hashedPassword,
-        role: getUserRole('USER'),
+        role: getUserRole(body.role), 
       }),
     );
   });
@@ -76,5 +77,15 @@ export class AuthService{
      const accessToken = this.tokenService.generateJwtToken(payload);
 
      return new LoginDto.Output(accessToken);
+  }
+
+   async verifyToken(token: string): Promise<any> {
+    const scret='fdctrhaebgjygnkygjtfr'
+    try {
+      const decoded = jwt.verify(token, scret);
+      return decoded;
+    } catch (error) {
+      throw new UnauthorizedException('Invalid token');
+    }
   }
 }

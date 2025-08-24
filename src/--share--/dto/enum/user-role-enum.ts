@@ -1,18 +1,17 @@
 
-
 export enum UserRole {
   USER = "USER",
   ADMIN = "ADMIN",
 }
 
-export function getUserRole(role: string): UserRole {
+export function getUserRole(role?: string): UserRole {
+  if (!role) return UserRole.USER; 
   switch (role.toUpperCase()) {
-    case "USER":
-      return UserRole.USER;
     case "ADMIN":
       return UserRole.ADMIN;
+    case "USER":
+      return UserRole.USER;
     default:
       return UserRole.USER;
   }
 }
-

@@ -5,14 +5,14 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 
-export namespace FetchuUserDto{
-    @ApiSchema({ name: 'FetchUserInput' })
+export namespace FetchuTodosDto{
+    @ApiSchema({ name: 'FetchTodosInput' })
     export class Input extends PaginationDto{
 
-        @ApiPropertyOptional({ description: 'Search keyword (name or email)' })
+        @ApiPropertyOptional({ description: 'Search keyword (title)' })
         @IsOptional()
         @IsString()
-       q?: string;
+        q?: string;
         
 
         @ApiPropertyOptional({ description: 'Filter by user id' })
@@ -23,13 +23,13 @@ export namespace FetchuUserDto{
     }
      
 
-    @ApiSchema({ name: 'FetchUserInput' })
+    @ApiSchema({ name: 'FetchTodosInput' })
     export class Output {
        id:number;
-       names:string;
-       email:string;
-       phone:string;
-       activated:boolean;
-       role:string
+       title:string;
+       description:string;
+       time:string;
+       status:string
+       
     }
 }

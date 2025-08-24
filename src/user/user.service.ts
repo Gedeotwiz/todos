@@ -52,4 +52,8 @@ export class UserService{
     return { data: result, total };
   }
 
+  async findUserById(id:number):Promise<any>{
+     return await this.userRepository.findOne({where:{id}})
+  }
+
 }

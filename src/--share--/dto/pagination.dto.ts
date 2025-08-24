@@ -15,7 +15,7 @@ export class PaginationDto {
   page: number = 1;
 
 
-   @ApiPropertyOptional({ description: 'Items per page', example: 10 })
+   @ApiPropertyOptional({ description: 'User per page', example: 10 })
   @IsOptional()
   @Type(() => Number)
   @IsInt()
