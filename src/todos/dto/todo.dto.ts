@@ -28,6 +28,7 @@ export  namespace CreateTaskDto {
 
   @ApiSchema({ name: 'CreateTaskOutput' })
   export class Output {
+  id:string;
   title: string;
   description: string;
   time: string;

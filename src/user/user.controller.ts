@@ -1,4 +1,4 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query,Delete } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FetchuUserDto } from './dto/fetch.user.dto';
 
@@ -10,4 +10,5 @@ export class UserController {
   async getAllUsers(@Query() input: FetchuUserDto.Input) {
     return this.userService.getAllUsers(input);
   }
+
 }

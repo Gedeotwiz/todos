@@ -1,0 +1,23 @@
+{
+  "development": {
+    "username": "gedeon",
+    "password": "Todo.post@12",
+    "database": "todo",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "test": {
+     "username": "gedeon",
+    "password": "Todo.post@12",
+    "database": "todo",
+    "host": "localhost",
+    "dialect": "postgres"
+  },
+  "production": {
+     "username": "gedeon",
+    "password": "Todo.post@12",
+    "database": "todo",
+    "host": "localhost",
+    "dialect": "postgres"
+  }
+}

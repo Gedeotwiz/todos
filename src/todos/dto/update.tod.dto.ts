@@ -1,7 +1,8 @@
 
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { IsString} from 'class-validator';
 import { ApiSchema } from '@nestjs/swagger';
+import { TaskStatus } from 'src/--share--/dto/enum/task-enum';
 
 export  namespace UpdateTaskDto {
 
@@ -17,12 +18,13 @@ export  namespace UpdateTaskDto {
 
    @IsString()
    @ApiProperty()
-   status: string;
+   status: TaskStatus;
   
   }
 
   @ApiSchema({ name: 'UpdateTaskOutput' })
   export class Output {
+  id:string;
   title: string;
   description: string;
   status: string;

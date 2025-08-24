@@ -17,7 +17,7 @@ export class AuthController{
 
    @Post("login")
    async SignIn(@Body() body:LoginDto.Input):Promise<GenericResponse<LoginDto.Output>>{
-    const payload = await this.authService.Login(body)
+    const payload = await this.authService.login(body)
     return new GenericResponse("Login successfuly",payload)
    }
 

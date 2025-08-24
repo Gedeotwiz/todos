@@ -25,7 +25,7 @@ export namespace FetchuTodosDto{
 
     @ApiSchema({ name: 'FetchTodosInput' })
     export class Output {
-       id:number;
+       id:string;
        title:string;
        description:string;
        time:string;

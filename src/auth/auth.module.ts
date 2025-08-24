@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { SequelizeModule } from '@nestjs/sequelize';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-
+import { User } from 'src/user/user.model';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/use.module';
@@ -12,7 +12,7 @@ import { JwtStrategy } from './jwt.stratege';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([]),
+    SequelizeModule.forFeature([User]),
     UserModule,
     TokenModule,
     ConfigModule,  
@@ -28,6 +28,6 @@ import { JwtStrategy } from './jwt.stratege';
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],
-  exports: [AuthService],
+  exports: [AuthService,SequelizeModule],
 })
 export class AuthModule {}

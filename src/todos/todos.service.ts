@@ -1,111 +1,107 @@
 import { Injectable, HttpException, HttpStatus ,NotFoundException} from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Todos } from './todos.entity';
+import { InjectModel } from '@nestjs/sequelize';
+import { Todos } from './todos.model';
 import { CreateTaskDto } from './dto/todo.dto';
 import { FetchuTodosDto } from './dto/fetch.todos.dto';
 import { UpdateTaskDto } from './dto/update.tod.dto';
+import { TaskStatus } from 'src/--share--/dto/enum/task-enum';
 
 
 @Injectable()
 export class TodosService {
   constructor(
-    @InjectRepository(Todos)
-    private readonly todosRepository: Repository<Todos>,
+    @InjectModel(Todos)
+    private readonly todosModule: typeof Todos,
   ) {}
 
   async createTodos(body: CreateTaskDto.Input): Promise<CreateTaskDto.Output> {
-    const todo = this.todosRepository.create({
-  title: body.title,
-  description: body.description,
-  time: body.time,
-  status: 'ON-TRACK', 
- });
-    const saved = await this.todosRepository.save(todo);
+  const todo = await this.todosModule.create({
+    title: body.title,
+    description: body.description,
+    time: body.time,
+    status: TaskStatus.ON_TRACK,
+  });
 
-    if (!saved) {
-      throw new HttpException('Failed to create task', HttpStatus.BAD_REQUEST);
-    }
-    
-    return {
-      title: saved.title,
-      description: saved.description,
-      time: saved.time,
-      status: saved.status,
-    };
+  if (!todo) {
+    throw new HttpException('Failed to create task', HttpStatus.BAD_REQUEST);
   }
 
-  async getAllTodos(input: FetchuTodosDto.Input): Promise<{ data: FetchuTodosDto.Output[]; total: number }> {
-      const { page = 1, size = 10, q, id } = input;
+  return {
+    id:todo.id,
+    title: todo.title,
+    description: todo.description,
+    time: todo.time,
+    status: todo.status,
+  };
+}
 
-      const query = this.todosRepository.createQueryBuilder("todos")
 
-      if(id){
-        query.andWhere('todos.id = :id', { id });
-      }
+  async getAllTodos(
+  input: FetchuTodosDto.Input,
+): Promise<{ data: FetchuTodosDto.Output[]; total: number }> {
+  const { page = 1, size = 10, q, id } = input;
 
-       if (q) {
-      query.andWhere(
-        '(todos.title ILIKE :q )',
-        { q: `%${q}%` },
-      );
-    }
+  const where: any = {};
 
-    query.skip((page - 1) * size).take(size);
-
-    const [data, total] = await query.getManyAndCount();
-     
-     const result: FetchuTodosDto.Output[] = data.map((todos) => ({
-        id:todos.id,
-        title:todos.title,
-        description:todos.description,
-        time:todos.time,
-        status:todos.status
-
-     }))
-     return {data:result,total}
+  if (id) {
+    where.id = id;
   }
 
-  async getById(id:number):Promise<CreateTaskDto.Output>{
-    const todos = await this.todosRepository.findOne({where:{id}})
-    if(!todos){
-      throw new NotFoundException(`Todos not found on this id ${id}`)
-    }
-    return {
-      title: todos.title,
-      description: todos.description,
-      time: todos.time,
-      status: todos.status,
-    };
+  if (q) {
+    where.title = { $iLike: `%${q}%` };
   }
 
-  async deletTodos(id:number):Promise<any>{
-    const todos = await this.todosRepository.findOne({where:{id}})
-      if(!todos){
-      throw new NotFoundException(`Todos not found on this id ${id}`)
-    }
-    return await this.todosRepository.delete(id)
+  const { rows, count } = await this.todosModule.findAndCountAll({
+    where,
+    limit: size,
+    offset: (page - 1) * size,
+  });
+
+  if (rows.length === 0) {
+    throw new NotFoundException(`No todos found`);
   }
 
-  async updateTodos(id: number, body: UpdateTaskDto.Input): Promise<UpdateTaskDto.Output> {
-  const todos = await this.todosRepository.findOne({ where: { id } });
-  
+  const result: FetchuTodosDto.Output[] = rows.map((todo) => ({
+    id: todo.id,
+    title: todo.title,
+    description: todo.description,
+    time: todo.time,
+    status: todo.status,
+  }));
+
+  return { data: result, total: count };
+}
+
+  async updateTodos(id: string, body: UpdateTaskDto.Input): Promise<UpdateTaskDto.Output> {
+  const todos = await this.todosModule.findOne({ where: { id } });
+
   if (!todos) {
     throw new NotFoundException(`Todos not found on this id ${id}`);
   }
 
-  
   todos.title = body.title ?? todos.title;
   todos.description = body.description ?? todos.description;
   todos.status = body.status ?? todos.status;
 
-  const updated = await this.todosRepository.save(todos);
+  await todos.save();
 
   return {
-    title: updated.title,
-    description: updated.description,
-    status: updated.status,
+    id:todos.id,
+    title: todos.title,
+    description: todos.description,
+    status: todos.status,
   };
 }
+
+ async deletTodoById(id: number): Promise<{ message: string }> {
+    const deleted = await this.todosModule.destroy({ where: { id } });
+
+    if (!deleted) {
+      throw new NotFoundException(`Todo not found on this id ${id}`);
+    }
+
+    return { message: 'Todo deleted successfully' };
+  }
+
 
 }

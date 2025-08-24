@@ -1,28 +1,29 @@
 
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Todos } from './todos/todos.entity';
+import { Todos } from './todos/todos.model';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import {TodosModule} from './todos/todos.module'
-import { User } from './user/user.entity';
+import { User } from './user/user.model';
 import { UserModule } from './user/use.module';
 import { AuthModule } from './auth/auth.module';
+import { SequelizeModule } from '@nestjs/sequelize';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot(), 
-    TypeOrmModule.forRootAsync({
+    SequelizeModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
-        type: 'postgres',
+        dialect: 'postgres',
         host: configService.get<string>('DB_HOST'),
         port: parseInt(configService.get<string>('DB_PORT'), 10) || 5432,
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [Todos,User],
+        models: [Todos,User],
+        autoLoadModels: true,      
         synchronize: true,
       }),
     }),

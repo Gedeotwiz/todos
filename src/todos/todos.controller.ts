@@ -22,7 +22,6 @@ export class TodosController {
   }
 
   @Get()
-  @IsUser()
   async getTodos(@Query() input: FetchuTodosDto.Input):Promise<any>{
       const payload = await this.todosService.getAllTodos(input)
       return new GenericResponse("Todos successfuly retrived",payload)
@@ -30,20 +29,18 @@ export class TodosController {
 
 @Delete(':id')
 @IsAdmin()
-async deleteTodos(@Param('id') id:number):Promise<any>{
-  const payload = await this.todosService.deletTodos(id)
+async deleteTodos(@Param('id') id:string):Promise<any>{
+  const payload = await this.todosService.deletTodoById
   return new GenericResponse("Todos successfully deleted", payload);
 }
 
   @Patch(':id')
   @IsUser()
   async update(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseIntPipe) id: string,
     @Body() body: UpdateTaskDto.Input,
   ): Promise<GenericResponse<UpdateTaskDto.Output>> {
     const payload = await this.todosService.updateTodos(id, body);
     return new GenericResponse("Todos successfully deleted", payload);
   }
-
-
 }

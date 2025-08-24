@@ -1,59 +1,69 @@
 import {
-  Injectable,
+  Injectable,NotFoundException
 } from "@nestjs/common";
-import { User } from "./user.entity";
-import {Repository } from "typeorm";
-import { InjectRepository } from '@nestjs/typeorm';
+import { User } from "./user.model";
+import { InjectModel } from "@nestjs/sequelize";
 import { FetchuUserDto } from "./dto/fetch.user.dto";
+import { Op } from "sequelize";
 
 
 @Injectable()
 export class UserService{
    constructor(
-    @InjectRepository(User) 
-    private readonly userRepository:Repository<User>,
+    @InjectModel(User) 
+    private readonly userModule: typeof User,
    ){}
 
    async findUserByEmail(email: string): Promise<User | undefined> {
-    return this.userRepository.findOne({
+    return this.userModule.findOne({
       where: { email }
     });
   }
 
-  async getAllUsers(input: FetchuUserDto.Input): Promise<{ data: FetchuUserDto.Output[]; total: number }> {
-    const { page = 1, size = 10, q, id } = input;
+ async getAllUsers(
+  input: FetchuUserDto.Input,
+): Promise<{ data: FetchuUserDto.Output[]; total: number }> {
+  const { page = 1, size = 10, q, id } = input;
 
-    const query = this.userRepository.createQueryBuilder('user');
+  const where: any = {};
 
-    if (id) {
-      query.andWhere('user.id = :id', { id });
-    }
-
-    if (q) {
-      query.andWhere(
-        '(user.names ILIKE :q OR user.email ILIKE :q OR user.phone ILIKE :q)',
-        { q: `%${q}%` },
-      );
-    }
-
-    query.skip((page - 1) * size).take(size);
-
-    const [data, total] = await query.getManyAndCount();
-
-    const result: FetchuUserDto.Output[] = data.map((user) => ({
-      id: user.id,
-      names: user.names,
-      email: user.email,
-      phone: user.phone,
-      activated: user.activated,
-      role: user.role,
-    }));
-
-    return { data: result, total };
+  if (id) {
+    where.id = id;
   }
+
+  if (q) {
+    where[Op.or] = [
+      { names: { [Op.iLike]: `%${q}%` } },
+      { email: { [Op.iLike]: `%${q}%` } },
+      { phone: { [Op.iLike]: `%${q}%` } },
+    ];
+  }
+
+  const { rows, count } = await this.userModule.findAndCountAll({
+    where,
+    limit: size,
+    offset: (page - 1) * size,
+  });
+
+  if (rows.length === 0) {
+    throw new NotFoundException(`User not found`);
+  }
+
+  const result: FetchuUserDto.Output[] = rows.map((user) => ({
+    id: user.id,
+    names: user.names,
+    email: user.email,
+    phone: user.phone,
+    activated: user.activated,
+    role: user.role,
+  }));
+
+  return { data: result, total: count };
+}
 
   async findUserById(id:number):Promise<any>{
-     return await this.userRepository.findOne({where:{id}})
+     return await this.userModule.findOne({where:{id}})
   }
+
 
 }

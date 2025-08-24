@@ -25,7 +25,7 @@ export namespace FetchuUserDto{
 
     @ApiSchema({ name: 'FetchUserInput' })
     export class Output {
-       id:number;
+       id:string;
        names:string;
        email:string;
        phone:string;
