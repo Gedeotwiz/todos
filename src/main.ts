@@ -27,11 +27,12 @@ async function bootstrap() {
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document, {
+  SwaggerModule.setup('', app, document, {
     customSiteTitle: 'Todos API Documentation',
   });
    
-  await app.listen(3000); 
+  await app.listen(process.env.PORT || 3001);
+
   const url = "http://localhost:3000/api"
   console.log(`Swagger UI is running on ${url}`)
 }
