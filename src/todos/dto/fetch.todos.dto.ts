@@ -30,6 +30,7 @@ export namespace FetchuTodosDto{
        description:string;
        time:string;
        status:string
+       userId:string
        
     }
 }

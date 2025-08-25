@@ -1,10 +1,12 @@
-import { Injectable, HttpException, HttpStatus ,NotFoundException} from '@nestjs/common';
+import { Injectable,Inject, HttpException, HttpStatus ,NotFoundException,ConflictException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Todos } from './todos.model';
 import { CreateTaskDto } from './dto/todo.dto';
 import { FetchuTodosDto } from './dto/fetch.todos.dto';
 import { UpdateTaskDto } from './dto/update.tod.dto';
-import { TaskStatus } from 'src/--share--/dto/enum/task-enum';
+import { TodoStatus } from 'src/--share--/dto/enum/task-enum';
+import { Queue } from 'bullmq';
+import { Op } from 'sequelize';
 
 
 @Injectable()
@@ -12,43 +14,58 @@ export class TodosService {
   constructor(
     @InjectModel(Todos)
     private readonly todosModule: typeof Todos,
+
+    @Inject('NOTIFICATION_QUEUE')
+    private notificationQueue: Queue
   ) {}
 
-  async createTodos(body: CreateTaskDto.Input): Promise<CreateTaskDto.Output> {
+  async createTodos(body: CreateTaskDto.Input,userId:string): Promise<CreateTaskDto.Output> {
+
+    const existTodo = await this.todosModule.findOne({where:{time:body.time}})
+    if(existTodo){
+       throw new ConflictException('Please select other time because this is scheduled');
+    }
   const todo = await this.todosModule.create({
     title: body.title,
     description: body.description,
     time: body.time,
-    status: TaskStatus.ON_TRACK,
+    status: TodoStatus.ON_TRACK,
+    userId
   });
 
   if (!todo) {
     throw new HttpException('Failed to create task', HttpStatus.BAD_REQUEST);
   }
 
+  await this.notificationQueue.add(
+    'send-reminder',{todoId:todo.id},{delay:60*60*1000}
+  )
   return {
     id:todo.id,
     title: todo.title,
     description: todo.description,
     time: todo.time,
     status: todo.status,
+    userId:todo.userId
   };
 }
 
 
   async getAllTodos(
-  input: FetchuTodosDto.Input,
+  input: FetchuTodosDto.Input,userId:string
 ): Promise<{ data: FetchuTodosDto.Output[]; total: number }> {
   const { page = 1, size = 10, q, id } = input;
 
-  const where: any = {};
+  const where: any = {
+    userId, 
+  };
 
   if (id) {
     where.id = id;
   }
 
   if (q) {
-    where.title = { $iLike: `%${q}%` };
+    where.title = { [Op.iLike]: `%${q}%` }; 
   }
 
   const { rows, count } = await this.todosModule.findAndCountAll({
@@ -67,6 +84,7 @@ export class TodosService {
     description: todo.description,
     time: todo.time,
     status: todo.status,
+    userId:todo.userId
   }));
 
   return { data: result, total: count };

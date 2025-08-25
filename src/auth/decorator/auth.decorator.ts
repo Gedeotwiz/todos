@@ -27,3 +27,7 @@ export function IsAdmin() {
 export function IsUser() {
   return Authorize(JwtGuard, UserRole.USER);
 }
+
+export function IsAdminOrUser(){
+    return Authorize(JwtGuard, UserRole.USER || UserRole.ADMIN);
+}

@@ -1,5 +1,6 @@
-import { Table, Column, Model, DataType } from "sequelize-typescript";
+import { Table, Column, Model, DataType,HasMany} from "sequelize-typescript";
 import { UserRole } from "src/--share--/dto/enum/user-role-enum";
+import { Todos } from "src/todos/todos.model";
 
 
 @Table({
@@ -51,6 +52,9 @@ export class User extends Model<User> {
     allowNull: true,
   })
   declare refreshToken: string;
+
+  @HasMany(() => Todos)  
+  todos: Todos[];
 
   @Column({
     type: DataType.DATE,

@@ -1,6 +1,7 @@
-import { Table, Column, Model, DataType } from "sequelize-typescript";
+import { Table, Column, Model, DataType,BelongsTo,ForeignKey, AllowNull } from "sequelize-typescript";
 
-import { TaskStatus } from 'src/--share--/dto/enum/task-enum';
+import { TodoStatus } from 'src/--share--/dto/enum/task-enum';
+import { User } from "src/user/user.model";
 
 @Table({
    tableName: "todos",
@@ -44,10 +45,18 @@ export class Todos extends Model<Todos>{
   declare createdAt: Date;
 
   
-   @Column({
-      type: DataType.ENUM(...Object.values(TaskStatus)),
-      defaultValue: TaskStatus,
-    })
-    declare status: TaskStatus;
+  @Column({
+    type: DataType.ENUM('ON-TRACK','DONE','OFF-TRACK'),
+    defaultValue: TodoStatus.ON_TRACK,
+  })
+  declare status: TodoStatus;
+
+  
+  @ForeignKey(() => User)
+  @Column({ type: DataType.UUID, allowNull: false })
+  userId: string;   
+
+  @BelongsTo (() => User)  
+  user: User;
   
 }

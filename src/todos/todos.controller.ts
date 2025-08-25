@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get,Param,Delete,Query,Patch,ParseIntPipe} from '@nestjs/common';
+import { Body, Controller, Post, Get,Param,Delete,Query,Patch,ParseIntPipe,Req} from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTaskDto } from './dto/todo.dto';
 import { GenericResponse } from 'src/--share--/dto/genericResponse.dto';
@@ -6,6 +6,7 @@ import { FetchuTodosDto } from './dto/fetch.todos.dto';
 import { UpdateTaskDto } from './dto/update.tod.dto';
 import { IsUser } from 'src/auth/decorator/auth.decorator';
 import { IsAdmin } from 'src/auth/decorator/auth.decorator';
+import { IsAdminOrUser } from 'src/auth/decorator/auth.decorator';
 
 
 @Controller('todos')
@@ -13,17 +14,20 @@ export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Post()
-  @IsUser()
+  @IsAdminOrUser()
   async createTodo(
-    @Body() body: CreateTaskDto.Input,
+    @Body() body: CreateTaskDto.Input, @Req() req
   ): Promise<GenericResponse<CreateTaskDto.Output>> {
-    const payload = await this.todosService.createTodos(body);
+     const userId = req.user.id
+    const payload = await this.todosService.createTodos(body,userId);
     return new GenericResponse("Todos successfully added", payload);
   }
 
   @Get()
-  async getTodos(@Query() input: FetchuTodosDto.Input):Promise<any>{
-      const payload = await this.todosService.getAllTodos(input)
+  @IsUser()
+  async getTodos(@Query() input: FetchuTodosDto.Input,@Req() req):Promise<any>{
+      const userId = req.user.id
+      const payload = await this.todosService.getAllTodos(input,userId)
       return new GenericResponse("Todos successfuly retrived",payload)
   }
 

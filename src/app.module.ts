@@ -7,6 +7,7 @@ import { User } from './user/user.model';
 import { UserModule } from './user/use.module';
 import { AuthModule } from './auth/auth.module';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { BullmqModule } from './bullmq/bullmq.module';
 
 
 @Module({
@@ -29,7 +30,8 @@ import { SequelizeModule } from '@nestjs/sequelize';
     }),
     TodosModule,
     UserModule,
-    AuthModule
+    AuthModule,
+    BullmqModule
   ],
 })
 export class AppModule {}

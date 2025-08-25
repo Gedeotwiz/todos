@@ -2,7 +2,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsString} from 'class-validator';
 import { ApiSchema } from '@nestjs/swagger';
-import { TaskStatus } from 'src/--share--/dto/enum/task-enum';
+import { TodoStatus } from 'src/--share--/dto/enum/task-enum';
 
 export  namespace UpdateTaskDto {
 
@@ -18,7 +18,7 @@ export  namespace UpdateTaskDto {
 
    @IsString()
    @ApiProperty()
-   status: TaskStatus;
+   status: TodoStatus;
   
   }
 
