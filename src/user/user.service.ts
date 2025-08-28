@@ -62,7 +62,12 @@ export class UserService{
 }
 
   async findUserById(id:number):Promise<any>{
-     return await this.userModule.findOne({where:{id}})
+
+     const user = await this.userModule.findOne({where:{id}})
+      if(!user){
+         throw new NotFoundException(`User not found`);
+      }
+     return user
   }
 
 
