@@ -13,6 +13,7 @@ import { LoginDto } from './dto/login.dto';
 import { TokenService } from './utils/jwt-token-service';
 import { IJwtPayload } from 'src/type/types';
 import * as jwt from 'jsonwebtoken';
+import { UserService } from 'src/user/user.service';
 
 @Injectable()
 export class AuthService {
@@ -20,10 +21,11 @@ export class AuthService {
     @InjectModel(User)
     private readonly userModel: typeof User,
     private readonly tokenService: TokenService,
+    private readonly userService : UserService
   ) {}
 
   async signUp(body: SignupDto.Input): Promise<SignupDto.Output> {
-    const userExist = await this.userModel.findOne({ where: { email: body.email } });
+    const userExist = await this.userService.findUserByEmail(body.email);
     if (userExist) {
       throw new ConflictException('User already exists');
     }
@@ -44,32 +46,31 @@ export class AuthService {
   }
 
   async login(body: LoginDto.Input): Promise<LoginDto.Output> {
-    const user = await this.userModel.findOne({ where: { email: body.email } });
+  
+    console.log(body.email)
+  const user = await this.userService.findUserByEmail(body.email);
 
-    if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
-    const isMatch = await PasswordEncryption.comparePassword(
-      body.password,
-      user.password,
-    );
-
-    if (!isMatch) {
-      throw new UnauthorizedException('Invalid email or password');
-    }
-
-    const payload: IJwtPayload = {
-      sub: user.email,
-      id: user.id,
-      role: user.role as UserRole,
-    };
-
-    const accessToken = this.tokenService.generateJwtToken(payload);
-
-    return new LoginDto.Output(accessToken);
+  if (!user) {
+    throw new UnauthorizedException('Invalid email or password');
   }
 
+  console.log(user.password)
+  const isMatch = PasswordEncryption.comparePassword(body.password, user.password);
+
+  if (!isMatch) {
+    throw new UnauthorizedException('Invalid email or password');
+  }
+
+  const payload: IJwtPayload = {
+    sub: user.email,
+    id: user.id,
+    role: user.role as UserRole,
+  };
+
+  const accessToken = this.tokenService.generateJwtToken(payload);
+
+  return new LoginDto.Output(accessToken);
+}
   async verifyToken(token: string): Promise<any> {
     const secret = 'fdctrhaebgjygnkygjtfr';
     try {

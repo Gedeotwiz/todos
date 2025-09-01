@@ -1,4 +1,4 @@
-import { Controller, Get, Query,Req } from '@nestjs/common';
+import { Controller, Get, Param, Query,Req } from '@nestjs/common';
 import { UserService } from './user.service';
 import { FetchuUserDto } from './dto/fetch.user.dto';
 import { GenericResponse } from 'src/--share--/dto/genericResponse.dto';
@@ -19,6 +19,12 @@ export class UserController {
         const userId = req.user.id
         const payload = await this.userService.findUserById(userId)
         return new GenericResponse("Todos successfuly retrived",payload)
+  }
+
+  @Get("/email")
+  async getUserEmail(@Query('email') email:string):Promise<any>{
+      const payload = await this.userService.findUserByEmail(email)
+      return payload
   }
 
 }

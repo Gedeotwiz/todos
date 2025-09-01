@@ -1,7 +1,6 @@
-import { Table, Column, Model, DataType,HasMany} from "sequelize-typescript";
+import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
 import { UserRole } from "src/--share--/dto/enum/user-role-enum";
 import { Todos } from "src/todos/todos.model";
-
 
 @Table({
   tableName: "users",
@@ -13,60 +12,59 @@ export class User extends Model<User> {
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
   })
-   declare id: string; 
+  declare id: string;
 
-   @Column({
+  @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-   names: string;
-
-   @Column({
-    type: DataType.STRING,
-    allowNull: false,
-    unique: true,
-  })
-   email: string;
+  declare names: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
     unique: true,
   })
-   phone: string;
+  declare email: string;
+
+  @Column({
+    type: DataType.STRING,
+    allowNull: false,
+    unique: true,
+  })
+  declare phone: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-   password: string;
+  declare password: string; // ✅ use declare
 
   @Column({
     type: DataType.ENUM(...Object.values(UserRole)),
     defaultValue: UserRole.USER,
   })
-   role: UserRole;
+  declare role: UserRole;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-   refreshToken: string;
+  declare refreshToken: string;
 
-  @HasMany(() => Todos)  
-  todos: Todos[];
+  @HasMany(() => Todos)
+  declare todos: Todos[];
 
   @Column({
     type: DataType.DATE,
     allowNull: true,
-
   })
-   verifiedAt: Date;
+  declare verifiedAt: Date;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
     defaultValue: true,
   })
-   activated: boolean;
+  declare activated: boolean;
 }

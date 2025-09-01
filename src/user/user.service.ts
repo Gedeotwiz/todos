@@ -14,11 +14,13 @@ export class UserService{
     private readonly userModule: typeof User,
    ){}
 
-   async findUserByEmail(email: string): Promise<User | undefined> {
-    return this.userModule.findOne({
-      where: { email }
-    });
-  }
+   async findUserByEmail(email: string): Promise<User | null> {
+  return this.userModule.findOne({
+    where: { email },
+    attributes: ['id', 'email', 'password', 'names', 'role'],
+  });
+}
+
 
  async getAllUsers(
   input: FetchuUserDto.Input,
