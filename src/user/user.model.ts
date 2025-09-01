@@ -13,45 +13,45 @@ export class User extends Model<User> {
     defaultValue: DataType.UUIDV4,
     primaryKey: true,
   })
-  declare id: string; 
+   declare id: string; 
 
    @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  declare names: string;
+   names: string;
 
    @Column({
     type: DataType.STRING,
     allowNull: false,
     unique: true,
   })
-  declare email: string;
+   email: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
     unique: true,
   })
-  declare phone: string;
+   phone: string;
 
   @Column({
     type: DataType.STRING,
     allowNull: false,
   })
-  declare password: string;
+   password: string;
 
   @Column({
     type: DataType.ENUM(...Object.values(UserRole)),
     defaultValue: UserRole.USER,
   })
-  declare role: UserRole;
+   role: UserRole;
 
   @Column({
     type: DataType.STRING,
     allowNull: true,
   })
-  declare refreshToken: string;
+   refreshToken: string;
 
   @HasMany(() => Todos)  
   todos: Todos[];
@@ -59,13 +59,14 @@ export class User extends Model<User> {
   @Column({
     type: DataType.DATE,
     allowNull: true,
+
   })
-  declare verifiedAt: Date;
+   verifiedAt: Date;
 
   @Column({
     type: DataType.BOOLEAN,
     allowNull: false,
     defaultValue: true,
   })
-  declare activated: boolean;
+   activated: boolean;
 }
