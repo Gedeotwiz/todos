@@ -27,6 +27,7 @@ export namespace FetchuTodosDto{
     export class Output {
        id:string;
        title:string;
+       summary:string;
        description:string;
        time:string;
        status:string

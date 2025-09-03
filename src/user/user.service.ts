@@ -55,6 +55,7 @@ export class UserService{
     id: user.id,
     names: user.names,
     email: user.email,
+    image:user.image,
     phone: user.phone,
     activated: user.activated,
     role: user.role,

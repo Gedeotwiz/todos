@@ -11,6 +11,10 @@ export  namespace UpdateTaskDto {
   @IsString()
   @ApiProperty()
   title: string;
+
+  @IsString()
+  @ApiProperty()
+  summary: string;
   
   @IsString()
   @ApiProperty()
@@ -26,6 +30,7 @@ export  namespace UpdateTaskDto {
   export class Output {
   id:string;
   title: string;
+  summary:string;
   description: string;
   status: string;
  }

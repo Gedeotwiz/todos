@@ -11,6 +11,11 @@ export  namespace CreateTaskDto {
   @IsString()
   @ApiProperty()
   title: string;
+
+  @IsNotEmpty({ message: 'Please write your task description' })
+  @IsString()
+  @ApiProperty()
+  summary: string;
   
   @IsNotEmpty({ message: 'Please write your task description' })
   @IsString()
@@ -32,6 +37,7 @@ export  namespace CreateTaskDto {
   export class Output {
   id:string;
   title: string;
+  summary:string;
   description: string;
   time: string;
   status: string;

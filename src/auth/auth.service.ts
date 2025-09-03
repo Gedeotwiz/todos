@@ -47,14 +47,12 @@ export class AuthService {
 
   async login(body: LoginDto.Input): Promise<LoginDto.Output> {
   
-    console.log(body.email)
   const user = await this.userService.findUserByEmail(body.email);
 
   if (!user) {
     throw new UnauthorizedException('Invalid email or password');
   }
 
-  console.log(user.password)
   const isMatch = PasswordEncryption.comparePassword(body.password, user.password);
 
   if (!isMatch) {

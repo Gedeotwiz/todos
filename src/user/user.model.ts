@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
+import { Table, Column, Model, DataType, HasMany} from "sequelize-typescript";
+import { toDefaultValue } from "sequelize/lib/utils";
 import { UserRole } from "src/--share--/dto/enum/user-role-enum";
 import { Todos } from "src/todos/todos.model";
 
@@ -27,6 +28,13 @@ export class User extends Model<User> {
   })
   declare email: string;
 
+ @Column({
+  type: DataType.STRING,
+  allowNull: false,
+  defaultValue: 'https://www.gravatar.com/avatar/?d=mp&f=y'
+})
+declare image: string;
+
   @Column({
     type: DataType.STRING,
     allowNull: false,
@@ -38,7 +46,7 @@ export class User extends Model<User> {
     type: DataType.STRING,
     allowNull: false,
   })
-  declare password: string; // ✅ use declare
+  declare password: string; 
 
   @Column({
     type: DataType.ENUM(...Object.values(UserRole)),

@@ -22,6 +22,12 @@ export class Todos extends Model<Todos>{
     unique: true,
   })
   declare title: string;
+
+  @Column({
+  type: DataType.STRING,
+  allowNull: false,
+  })
+  declare summary: string;
   
   @Column({
     type: DataType.STRING,
@@ -29,8 +35,8 @@ export class Todos extends Model<Todos>{
     unique: true,
   })
   declare description: string;
-  
 
+  
   @Column({
     type: DataType.STRING,
     allowNull: false,

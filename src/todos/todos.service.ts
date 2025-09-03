@@ -27,6 +27,7 @@ export class TodosService {
     }
   const todo = await this.todosModule.create({
     title: body.title,
+    summary:body.summary,
     description: body.description,
     time: body.time,
     status: TodoStatus.ON_TRACK,
@@ -43,6 +44,7 @@ export class TodosService {
   return {
     id:todo.id,
     title: todo.title,
+    summary:todo.summary,
     description: todo.description,
     time: todo.time,
     status: todo.status,
@@ -60,12 +62,17 @@ export class TodosService {
     userId, 
   };
 
+
   if (id) {
     where.id = id;
   }
 
+  
   if (q) {
-    where.title = { [Op.iLike]: `%${q}%` }; 
+    where[Op.or] = [
+      { title: { [Op.iLike]: `%${q}%` } },
+      { status: TodoStatus.ON_TRACK || TodoStatus.DONE || TodoStatus.OFF_TRACK }
+    ];
   }
 
   const { rows, count } = await this.todosModule.findAndCountAll({
@@ -81,6 +88,7 @@ export class TodosService {
   const result: FetchuTodosDto.Output[] = rows.map((todo) => ({
     id: todo.id,
     title: todo.title,
+    summary:todo.summary,
     description: todo.description,
     time: todo.time,
     status: todo.status,
@@ -90,6 +98,34 @@ export class TodosService {
   return { data: result, total: count };
 }
 
+
+async getByStatus(userId: string, status: TodoStatus): Promise<{ data: FetchuTodosDto.Output[] }> {
+  const todos = await this.todosModule.findAll({
+    where: {
+      userId,
+      status,
+    },
+  });
+
+  if (todos.length === 0) {
+    throw new NotFoundException(`No todos found with status: ${status}`);
+  }
+
+  const result: FetchuTodosDto.Output[] = todos.map((todo) => ({
+    id: todo.id,
+    title: todo.title,
+    summary:todo.summary,
+    description: todo.description,
+    time: todo.time,
+    status: todo.status,
+    userId: todo.userId,
+  }));
+
+  return { data: result };
+}
+
+
+
   async updateTodos(id: string, body: UpdateTaskDto.Input): Promise<UpdateTaskDto.Output> {
   const todos = await this.todosModule.findOne({ where: { id } });
 
@@ -98,6 +134,7 @@ export class TodosService {
   }
 
   todos.title = body.title ?? todos.title;
+  todos.summary = body.summary ?? todos.summary
   todos.description = body.description ?? todos.description;
   todos.status = body.status ?? todos.status;
 
@@ -106,6 +143,7 @@ export class TodosService {
   return {
     id:todos.id,
     title: todos.title,
+    summary:todos.summary,
     description: todos.description,
     status: todos.status,
   };

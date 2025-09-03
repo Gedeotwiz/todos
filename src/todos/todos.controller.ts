@@ -7,7 +7,7 @@ import { UpdateTaskDto } from './dto/update.tod.dto';
 import { IsUser } from 'src/auth/decorator/auth.decorator';
 import { IsAdmin } from 'src/auth/decorator/auth.decorator';
 import { IsAdminOrUser } from 'src/auth/decorator/auth.decorator';
-
+import { TodoStatus } from 'src/--share--/dto/enum/task-enum';
 
 @Controller('todos')
 export class TodosController {
@@ -37,6 +37,18 @@ async deleteTodos(@Param('id') id:string):Promise<any>{
   const payload = await this.todosService.deletTodoById
   return new GenericResponse("Todos successfully deleted", payload);
 }
+
+@Get("status/:status")
+@IsUser()
+async getByStatus(
+  @Param("status") status: TodoStatus,
+  @Req() req,
+): Promise<any> {
+  const userId = req.user.id;
+  const payload = await this.todosService.getByStatus(userId,status)
+  return new GenericResponse(`Todos with status ${status} retrieved successfully`, payload);
+}
+
 
   @Patch(':id')
   @IsUser()

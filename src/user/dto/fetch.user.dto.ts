@@ -28,6 +28,7 @@ export namespace FetchuUserDto{
        id:string;
        names:string;
        email:string;
+       image:string;
        phone:string;
        activated:boolean;
        role:string

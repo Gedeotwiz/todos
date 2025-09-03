@@ -12,7 +12,7 @@ export class PaginationDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  page: number = 1;
+  page?: number ;
 
 
    @ApiPropertyOptional({ description: 'User per page', example: 10 })
@@ -20,7 +20,7 @@ export class PaginationDto {
   @Type(() => Number)
   @IsInt()
   @Min(1)
-  size: number = 10;
+  size?: number ;
 }
 
 export class PageResponseDto<T> implements IPage<T> {
