@@ -39,7 +39,7 @@ async deleteTodos(@Param('id') id:string):Promise<any>{
 }
 
 @Get("status/:status")
-@IsUser()
+@IsAdminOrUser()
 async getByStatus(
   @Param("status") status: TodoStatus,
   @Req() req,
@@ -53,7 +53,7 @@ async getByStatus(
   @Patch(':id')
   @IsUser()
   async update(
-    @Param('id', ParseIntPipe) id: string,
+    @Param('id') id: string,
     @Body() body: UpdateTaskDto.Input,
   ): Promise<GenericResponse<UpdateTaskDto.Output>> {
     const payload = await this.todosService.updateTodos(id, body);

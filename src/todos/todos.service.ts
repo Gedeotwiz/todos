@@ -98,30 +98,55 @@ export class TodosService {
   return { data: result, total: count };
 }
 
-
-async getByStatus(userId: string, status: TodoStatus): Promise<{ data: FetchuTodosDto.Output[] }> {
+async getByStatus(
+  userId: string,
+  status: TodoStatus
+): Promise<{ data: FetchuTodosDto.Output[] }> {
   const todos = await this.todosModule.findAll({
-    where: {
-      userId,
-      status,
-    },
+    where: { userId, status },
   });
 
   if (todos.length === 0) {
     throw new NotFoundException(`No todos found with status: ${status}`);
   }
 
-  const result: FetchuTodosDto.Output[] = todos.map((todo) => ({
-    id: todo.id,
-    title: todo.title,
-    summary:todo.summary,
-    description: todo.description,
-    time: todo.time,
-    status: todo.status,
-    userId: todo.userId,
-  }));
+  const toDateOnly = (d: Date): Date => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  const today = toDateOnly(new Date());
 
-  return { data: result };
+  const results: FetchuTodosDto.Output[] = [];
+
+  for (const todo of todos) {
+    
+    let updatedStatus: TodoStatus = todo.status as TodoStatus;
+    if (todo.status !== TodoStatus.DONE) {
+      const dueDate = todo.time ? toDateOnly(new Date(todo.time)) : null;
+      updatedStatus = dueDate && today <= dueDate ? TodoStatus.ON_TRACK : TodoStatus.OFF_TRACK;
+    }
+
+    
+    if (todo.status !== TodoStatus.DONE && updatedStatus !== (todo.status as TodoStatus)) {
+      try {
+       await this.todosModule.update(
+  { status: updatedStatus as any }, 
+  { where: { id: todo.id } }
+);
+      } catch (err) {
+        console.error(`Failed to update todo ${todo.id}:`, err);
+      }
+    }
+
+    results.push({
+      id: String(todo.id),
+      title: todo.title,
+      summary: todo.summary,
+      description: todo.description,
+      time: todo.time ,
+      status: todo.status,
+      userId: todo.userId,
+    } as FetchuTodosDto.Output);
+  }
+
+  return { data: results };
 }
 
 
