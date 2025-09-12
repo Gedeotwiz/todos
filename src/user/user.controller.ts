@@ -1,8 +1,12 @@
-import { Controller, Get, Param, Query,Req } from '@nestjs/common';
+import { Controller, Get, Query, Req, Patch, Body, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
 import { FetchuUserDto } from './dto/fetch.user.dto';
 import { GenericResponse } from 'src/--share--/dto/genericResponse.dto';
 import { IsAdminOrUser } from 'src/auth/decorator/auth.decorator';
+import { UpdateDto } from './dto/update.dto';
+import type { File } from "multer";
+
 
 @Controller('users')
 export class UserController {
@@ -13,18 +17,28 @@ export class UserController {
     return this.userService.getAllUsers(input);
   }
 
-  @Get("/id")
+  @Get("/me")
   @IsAdminOrUser()
-  async getUserBy(@Req() req):Promise<any>{
-        const userId = req.user.id
-        const payload = await this.userService.findUserById(userId)
-        return new GenericResponse("Todos successfuly retrived",payload)
+  async getUserBy(@Req() req): Promise<any> {
+    const userId = req.user.id;
+    const payload = await this.userService.findUserById(userId);
+    return new GenericResponse("User retrieved successfully", payload);
   }
 
   @Get("/email")
-  async getUserEmail(@Query('email') email:string):Promise<any>{
-      const payload = await this.userService.findUserByEmail(email)
-      return payload
+  async getUserEmail(@Query('email') email: string): Promise<any> {
+    return this.userService.findUserByEmail(email);
   }
 
+  @Patch("/me")
+  @IsAdminOrUser()
+  @UseInterceptors(FileInterceptor("file"))
+  async updateProfile(
+    @Req() req,
+    @Body() body: UpdateDto.Input,
+    @UploadedFile() file?: File
+  ): Promise<{ payload: UpdateDto.Output }> {
+    const userId = req.user.id;
+    return this.userService.updateUserProfile(userId, body, file);
+  }
 }
