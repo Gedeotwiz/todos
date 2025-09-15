@@ -1,4 +1,4 @@
-import { Controller, Get, Query, Req, Patch, Body, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Controller, Get, Query, Req, Patch, Body, UploadedFile, UseInterceptors,Post } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
 import { FetchuUserDto } from './dto/fetch.user.dto';
@@ -30,6 +30,14 @@ export class UserController {
     return this.userService.findUserByEmail(email);
   }
 
+  @Post('/upload-image')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(@UploadedFile() file: File) {
+  
+    const url = await this.userService.uploadBufferToCloudinary(file.buffer, 'profiles');
+    return { url };
+  }
+
   @Patch("/me")
   @IsAdminOrUser()
   @UseInterceptors(FileInterceptor("file"))
@@ -41,4 +49,6 @@ export class UserController {
     const userId = req.user.id;
     return this.userService.updateUserProfile(userId, body, file);
   }
+
+
 }

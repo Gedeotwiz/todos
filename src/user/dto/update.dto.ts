@@ -1,6 +1,6 @@
 import { 
   IsEmail,
-  IsString,
+  IsString,IsOptional
 } from "class-validator";
 import { ApiSchema, ApiProperty } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
@@ -21,8 +21,10 @@ export namespace UpdateDto {
     @ApiProperty()
     phone: string;
 
-    @ApiProperty()
-    image:string
+     @IsString()
+    @IsOptional()
+    @ApiProperty({ required: false })
+    image?: string;
     
   }
   
