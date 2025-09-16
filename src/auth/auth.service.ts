@@ -1,7 +1,8 @@
 import {
   Injectable,
   ConflictException,
-  UnauthorizedException,
+  UnauthorizedException,BadRequestException,
+  Body
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from 'src/user/user.model';
@@ -14,6 +15,10 @@ import { TokenService } from './utils/jwt-token-service';
 import { IJwtPayload } from 'src/type/types';
 import * as jwt from 'jsonwebtoken';
 import { UserService } from 'src/user/user.service';
+import { ForgotPasswordDto,ResetPasswordDto ,VerifyOtpDto} from './dto/password.dto';
+import { PasswordReset } from 'src/user/passwordResent.modul';
+import { sendOtpEmail } from 'src/common/mailer';
+import * as bcrypt from "bcryptjs";
 
 @Injectable()
 export class AuthService {
@@ -21,8 +26,12 @@ export class AuthService {
     @InjectModel(User)
     private readonly userModel: typeof User,
     private readonly tokenService: TokenService,
-    private readonly userService : UserService
+    private readonly userService : UserService,
+
+    @InjectModel(PasswordReset) 
+    private readonly passwordResetModel: typeof PasswordReset
   ) {}
+  private otpStore = new Map<string, { otp: string; expiresAt: number }>();
 
   async signUp(body: SignupDto.Input): Promise<SignupDto.Output> {
     const userExist = await this.userService.findUserByEmail(body.email);
@@ -77,5 +86,53 @@ export class AuthService {
     } catch (error) {
       throw new UnauthorizedException('Invalid token');
     }
+  }
+
+  async forgotPassword(body:ForgotPasswordDto){
+     const userExist = await this.userService.findUserByEmail(body.email);
+    if (userExist) {
+      throw new BadRequestException('User not found');
+    }
+
+     const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
+
+     await this.passwordResetModel.create({
+        userId: userExist.id,
+        otp,
+        expiresAt: new Date(Date.now() + 10 * 60 * 1000),
+     });
+     await sendOtpEmail(body.email,otp)
+     
+     return { message: "OTP sent to email" };
+  }
+
+  async verifyOtp(email:string,otp:string) {
+    const record = this.otpStore.get(email);
+    if (!record) throw new BadRequestException("OTP not found");
+
+    if (Date.now() > record.expiresAt) {
+      this.otpStore.delete(email);
+      throw new BadRequestException("OTP expired");
+    }
+
+    if (record.otp !== otp) throw new BadRequestException("Invalid OTP");
+
+    return { message: "OTP verified" };
+  }
+
+  async resetPassword(body:ResetPasswordDto) {
+    const otp = (body as any).otp;
+  
+    await this.verifyOtp(body.email,body.otp);
+
+    const user = await User.findOne({ where: {email: body.email } });
+    if (!user) throw new BadRequestException("User not found");
+
+    const hashedPassword = await bcrypt.hash(body.newPassword, 10);
+    await user.update({ password: hashedPassword });
+
+    this.otpStore.delete(body.email); 
+
+    return { message: "Password reset successful" };
   }
 }

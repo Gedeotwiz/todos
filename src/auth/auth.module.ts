@@ -9,10 +9,11 @@ import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/use.module';
 import { TokenModule } from './token.module';
 import { JwtStrategy } from './jwt.stratege';
+import { PasswordReset } from 'src/user/passwordResent.modul';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([User]),
+    SequelizeModule.forFeature([User,PasswordReset]),
     UserModule,
     TokenModule,
     ConfigModule,  

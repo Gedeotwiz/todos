@@ -8,6 +8,7 @@ import { UserModule } from './user/use.module';
 import { AuthModule } from './auth/auth.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { BullmqModule } from './bullmq/bullmq.module';
+import { PasswordReset } from './user/passwordResent.modul';
 
 
 @Module({
@@ -23,7 +24,7 @@ import { BullmqModule } from './bullmq/bullmq.module';
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        models: [Todos,User],
+        models: [Todos,User,PasswordReset],
         autoLoadModels: true,      
         synchronize: true,
       }),

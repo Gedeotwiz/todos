@@ -3,6 +3,8 @@ import { AuthService } from './auth.service';
 import { SignupDto } from './dto/sign-up.dto';
 import { GenericResponse } from 'src/--share--/dto/genericResponse.dto';
 import { LoginDto } from './dto/login.dto';
+import { ForgotPasswordDto } from './dto/password.dto';
+import { VerifyOtpDto,ResetPasswordDto } from './dto/password.dto';
 
 
 @Controller("auth")
@@ -20,5 +22,20 @@ export class AuthController{
     const payload = await this.authService.login(body)
     return new GenericResponse("Login successfuly",payload)
    }
+
+   @Post('forgot-password')
+   async forgotPassword(@Body() body:ForgotPasswordDto){
+    return this.authService.forgotPassword(body)
+   }
+
+   @Post("verify-otp")
+  verifyOtp(@Body() dto: VerifyOtpDto) {
+    return this.authService.verifyOtp(dto.email, dto.otp);
+  }
+
+  @Post("reset-password")
+  resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto);
+  }
 
 }

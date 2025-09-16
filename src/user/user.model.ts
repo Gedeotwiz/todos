@@ -1,7 +1,7 @@
 import { Table, Column, Model, DataType, HasMany} from "sequelize-typescript";
-import { toDefaultValue } from "sequelize/lib/utils";
 import { UserRole } from "src/--share--/dto/enum/user-role-enum";
 import { Todos } from "src/todos/todos.model";
+import { PasswordReset } from "./passwordResent.modul";
 
 @Table({
   tableName: "users",
@@ -75,4 +75,7 @@ declare image: string;
     defaultValue: true,
   })
   declare activated: boolean;
+
+  @HasMany(() => PasswordReset)
+  declare passwordResets: PasswordReset[];
 }
