@@ -89,8 +89,9 @@ export class AuthService {
   }
 
   async forgotPassword(body:ForgotPasswordDto){
+     console.log(body.email)
      const userExist = await this.userService.findUserByEmail(body.email);
-    if (userExist) {
+    if (!userExist) {
       throw new BadRequestException('User not found');
     }
 
@@ -104,21 +105,28 @@ export class AuthService {
      await sendOtpEmail(body.email,otp)
      
      return { message: "OTP sent to email" };
+  } 
+
+  async verifyOtp(email: string, otp: string) {
+  const user = await this.userService.findUserByEmail(email);
+  if (!user) throw new BadRequestException("User not found");
+
+  const record = await this.passwordResetModel.findOne({
+    where: { userId: user.id },
+    order: [["createdAt", "DESC"]], 
+  });
+
+  if (!record) throw new BadRequestException("OTP not found");
+
+  if (Date.now() > record.expiresAt.getTime()) {
+    throw new BadRequestException("OTP expired");
   }
 
-  async verifyOtp(email:string,otp:string) {
-    const record = this.otpStore.get(email);
-    if (!record) throw new BadRequestException("OTP not found");
+  if (record.otp !== otp) throw new BadRequestException("Invalid OTP");
 
-    if (Date.now() > record.expiresAt) {
-      this.otpStore.delete(email);
-      throw new BadRequestException("OTP expired");
-    }
+  return { message: "OTP verified" };
+}
 
-    if (record.otp !== otp) throw new BadRequestException("Invalid OTP");
-
-    return { message: "OTP verified" };
-  }
 
   async resetPassword(body:ResetPasswordDto) {
     const otp = (body as any).otp;
