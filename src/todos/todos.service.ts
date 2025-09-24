@@ -161,6 +161,7 @@ async getByStatus(
   todos.title = body.title ?? todos.title;
   todos.summary = body.summary ?? todos.summary
   todos.description = body.description ?? todos.description;
+  todos.time = body.time ?? todos.time
   todos.status = body.status ?? todos.status;
 
   await todos.save();
@@ -170,6 +171,7 @@ async getByStatus(
     title: todos.title,
     summary:todos.summary,
     description: todos.description,
+    time:todos.time,
     status: todos.status,
   };
 }

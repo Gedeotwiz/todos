@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Get,Param,Delete,Query,Patch,ParseIntPipe,Req} from '@nestjs/common';
+import { Body, Controller, Post, Get,Param,Delete,Query,Patch,Req} from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTaskDto } from './dto/todo.dto';
 import { GenericResponse } from 'src/--share--/dto/genericResponse.dto';

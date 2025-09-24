@@ -20,6 +20,10 @@ export  namespace UpdateTaskDto {
   @ApiProperty()
   description: string;
 
+  @IsString()
+  @ApiProperty()
+  time: string;
+
    @IsString()
    @ApiProperty()
    status: TodoStatus;
@@ -32,7 +36,9 @@ export  namespace UpdateTaskDto {
   title: string;
   summary:string;
   description: string;
+  time:string;
   status: string;
+  
  }
 
 }
