@@ -1,7 +1,8 @@
-import { Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { JwtService } from "@nestjs/jwt";
-import { IJwtPayload } from "src/type/types";
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
+import { IJwtPayload } from 'src/type/types';
+import type ms from 'ms';
 
 @Injectable()
 export class TokenService {
@@ -11,7 +12,9 @@ export class TokenService {
     this.jwtService = new JwtService({
       secret: this.configService.get<string>('JWT_SECRET'),
       signOptions: {
-        expiresIn: this.configService.get<string | number>('JWT_EXPIRES_IN'),
+        expiresIn: this.configService.get<string>(
+          'JWT_EXPIRES_IN',
+        ) as ms.StringValue,
       },
     });
   }
