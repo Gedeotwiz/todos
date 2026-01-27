@@ -1,12 +1,11 @@
-import { Controller, Get, Query, Req, Patch, Body, UploadedFile, UseInterceptors,Post } from '@nestjs/common';
+import { Controller, Get, Query, Req, Patch, Body, UploadedFile, UseInterceptors, Post } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
 import { FetchuUserDto } from './dto/fetch.user.dto';
 import { GenericResponse } from 'src/--share--/dto/genericResponse.dto';
 import { IsAdminOrUser } from 'src/auth/decorator/auth.decorator';
 import { UpdateDto } from './dto/update.dto';
-import type { File } from "multer";
-
+import type { File } from 'multer';
 
 @Controller('users')
 export class UserController {
@@ -17,38 +16,35 @@ export class UserController {
     return this.userService.getAllUsers(input);
   }
 
-  @Get("/me")
+  @Get('/me')
   @IsAdminOrUser()
-  async getUserBy(@Req() req): Promise<any> {
+  async getUserBy(@Req() req) {
     const userId = req.user.id;
     const payload = await this.userService.findUserById(userId);
-    return new GenericResponse("User retrieved successfully", payload);
+    return new GenericResponse('User retrieved successfully', payload);
   }
 
-  @Get("/email")
-  async getUserEmail(@Query('email') email: string): Promise<any> {
+  @Get('/email')
+  async getUserEmail(@Query('email') email: string) {
     return this.userService.findUserByEmail(email);
   }
 
   @Post('/upload-image')
   @UseInterceptors(FileInterceptor('file'))
   async uploadImage(@UploadedFile() file: File) {
-  
     const url = await this.userService.uploadBufferToCloudinary(file.buffer, 'profiles');
     return { url };
   }
 
-  @Patch("/me")
+  @Patch('/me')
   @IsAdminOrUser()
-  @UseInterceptors(FileInterceptor("file"))
+  @UseInterceptors(FileInterceptor('file'))
   async updateProfile(
     @Req() req,
     @Body() body: UpdateDto.Input,
     @UploadedFile() file?: File
-  ): Promise<{ payload: UpdateDto.Output }> {
+  ) {
     const userId = req.user.id;
     return this.userService.updateUserProfile(userId, body, file);
   }
-
-
 }
