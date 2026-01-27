@@ -7,7 +7,6 @@ import { User } from './user/user.model';
 import { UserModule } from './user/use.module';
 import { AuthModule } from './auth/auth.module';
 import { SequelizeModule } from '@nestjs/sequelize';
-import { BullmqModule } from './bullmq/bullmq.module';
 import { PasswordReset } from './user/passwordResent.modul';
 
 
@@ -32,7 +31,6 @@ import { PasswordReset } from './user/passwordResent.modul';
     TodosModule,
     UserModule,
     AuthModule,
-    BullmqModule
   ],
 })
 export class AppModule {}

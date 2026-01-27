@@ -1,11 +1,10 @@
-import { Injectable,Inject, HttpException, HttpStatus ,NotFoundException,ConflictException} from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus ,NotFoundException,ConflictException} from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Todos } from './todos.model';
 import { CreateTaskDto } from './dto/todo.dto';
 import { FetchuTodosDto } from './dto/fetch.todos.dto';
 import { UpdateTaskDto } from './dto/update.tod.dto';
 import { TodoStatus } from 'src/--share--/dto/enum/task-enum';
-import { Queue } from 'bullmq';
 import { Op } from 'sequelize';
 
 
@@ -14,9 +13,6 @@ export class TodosService {
   constructor(
     @InjectModel(Todos)
     private readonly todosModule: typeof Todos,
-
-    @Inject('NOTIFICATION_QUEUE')
-    private notificationQueue: Queue
   ) {}
 
   async createTodos(body: CreateTaskDto.Input,userId:string): Promise<CreateTaskDto.Output> {
@@ -37,10 +33,6 @@ export class TodosService {
   if (!todo) {
     throw new HttpException('Failed to create task', HttpStatus.BAD_REQUEST);
   }
-
-  await this.notificationQueue.add(
-    'send-reminder',{todoId:todo.id},{delay:60*60*1000}
-  )
   return {
     id:todo.id,
     title: todo.title,
