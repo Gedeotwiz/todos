@@ -21,9 +21,13 @@ export class UserService {
     });
   }
 
-  async findUserByEmail(email: string): Promise<User | null> {
-    return this.userModel.findOne({ email }).select('id email password names role').exec();
-  }
+ async findUserByEmail(email: string): Promise<UserDocument | null> {
+  return this.userModel
+    .findOne({ email })
+    .select('_id email password names role')
+    .exec();
+}
+
 
   async getAllUsers(input: FetchuUserDto.Input) {
     const { page = 1, size = 10, q, id } = input;

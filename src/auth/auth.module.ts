@@ -12,6 +12,7 @@ import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/use.module';
 import { TokenModule } from './token.module';
 import { JwtStrategy } from './jwt.stratege';
+import { MailerService } from 'src/common/mailer';
 
 @Module({
   imports: [
@@ -36,7 +37,7 @@ import { JwtStrategy } from './jwt.stratege';
       inject: [ConfigService],
     }),
   ],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy,MailerService],
   controllers: [AuthController],
   exports: [AuthService, MongooseModule],
 })

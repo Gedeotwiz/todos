@@ -8,9 +8,7 @@ export type UserDocument = User & Document;
 
 @Schema({ collection: 'users', timestamps: true })
 export class User {
-  @Prop({ type: String, required: true, unique: true, default: () => new Date().toISOString() })
-  id: string;
-
+  
   @Prop({ required: true })
   names: string;
 

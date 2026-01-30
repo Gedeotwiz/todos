@@ -7,8 +7,6 @@ export type TodosDocument = Todos & Document;
 
 @Schema({ collection: 'todos', timestamps: true })
 export class Todos {
-  @Prop({ type: String, required: true, unique: true, default: () => new Date().toISOString() })
-  id: string;
 
   @Prop({ required: true, unique: true })
   title: string;

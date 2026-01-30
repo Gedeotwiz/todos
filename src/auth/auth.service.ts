@@ -18,8 +18,8 @@ import { TokenService } from './utils/jwt-token-service';
 import { IJwtPayload } from 'src/type/types';
 import * as jwt from 'jsonwebtoken';
 import { UserService } from 'src/user/user.service';
-import { sendOtpEmail } from 'src/common/mailer';
 import * as bcrypt from 'bcryptjs';
+import { MailerService } from 'src/common/mailer';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +29,7 @@ export class AuthService {
     private readonly userService: UserService,
     @InjectModel(PasswordReset.name)
     private readonly passwordResetModel: Model<PasswordResetDocument>,
+    private readonly mailerService: MailerService,
   ) {}
 
   private otpStore = new Map<string, { otp: string; expiresAt: number }>();
@@ -63,7 +64,7 @@ export class AuthService {
 
     const payload: IJwtPayload = {
       sub: user.email,
-      id: user.id,
+      id: user._id.toString(),
       role: user.role as UserRole,
     };
 
@@ -84,23 +85,32 @@ export class AuthService {
   }
 
   // ------------------ FORGOT PASSWORD ------------------
-  async forgotPassword(body: ForgotPasswordDto) {
-    const userExist = await this.userService.findUserByEmail(body.email);
-    if (!userExist) throw new BadRequestException('User not found');
+async forgotPassword(body: ForgotPasswordDto) {
+  const userExist = await this.userService.findUserByEmail(body.email);
+  if (!userExist) throw new BadRequestException('User not found');
 
-    const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
+  const otp = (Math.floor(100000 + Math.random() * 900000)).toString();
 
-    await this.passwordResetModel.create({
-      userId: new Types.ObjectId(userExist.id),
+  try {
+    const reset = await this.passwordResetModel.create({
+      userId: userExist._id,
       otp,
-      expiresAt: new Date(Date.now() + 10 * 60 * 1000), // 10 minutes expiry
+      expiresAt: new Date(Date.now() + 10 * 60 * 1000),
       used: false,
     });
 
-    await sendOtpEmail(body.email, otp);
 
+    await this.mailerService.sendOtpEmail(body.email, otp);
     return { message: 'OTP sent to email' };
+
+  } catch (error) {
+    throw new BadRequestException(error.message);
   }
+}
+
+
+
+
 
   // ------------------ VERIFY OTP ------------------
   async verifyOtp(email: string, otp: string) {
@@ -108,9 +118,10 @@ export class AuthService {
     if (!user) throw new BadRequestException('User not found');
 
     const record = await this.passwordResetModel
-      .findOne({ userId: user.id })
-      .sort({ createdAt: -1 })
-      .exec();
+  .findOne({ userId: user._id, used: false })
+  .sort({ _id: -1 })
+  .exec();
+
 
     if (!record) throw new BadRequestException('OTP not found');
     if (record.used) throw new BadRequestException('OTP already used');

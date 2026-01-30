@@ -1,19 +1,27 @@
+import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import * as nodemailer from 'nodemailer';
 
-import * as nodemailer from "nodemailer";
+@Injectable()
+export class MailerService {
+  private transporter;
 
-const transporter = nodemailer.createTransport({
-  service: "Gmail",
-  auth: {
-    user: process.env.NODEMAILLER_EMAIL|| 'gedeontwizeyimana@gmail.com',
-    pass: process.env.NODEMAILLER_PASSWORD|| 'fqmv sapz olwh ltnm'
-  },
-});
+  constructor(private configService: ConfigService) {
+    this.transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: this.configService.get<string>('NODEMAILLER_EMAIL'),
+        pass: this.configService.get<string>('NODEMAILLER_PASSWORD'),
+      },
+    });
+  }
 
-export async function sendOtpEmail(email: string, otp: string) {
-  await transporter.sendMail({
-    from: process.env.NODEMAILLER_EMAIL,
-    to: email,
-    subject: "Your OTP Code",
-    text: `Your OTP code is ${otp}. It expires in 10 minutes.`,
-  });
+  async sendOtpEmail(email: string, otp: string) {
+    await this.transporter.sendMail({
+      from: this.configService.get<string>('NODEMAILLER_EMAIL'),
+      to: email,
+      subject: 'Your OTP Code',
+      text: `Your OTP code is ${otp}. It expires in 10 minutes.`,
+    });
+  }
 }
